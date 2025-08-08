@@ -6,14 +6,14 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
 model User {
   id            String   @id @default(uuid())
   walletAddress String   @unique @map("wallet_address")
-  profileData   Json?    @map("profile_data")
+  profileData   String?  @map("profile_data") // JSON stored as string for SQLite
   userType      String   @default("individual") @map("user_type")
   status        String   @default("pending")
   createdAt     DateTime @default(now()) @map("created_at")
@@ -35,7 +35,7 @@ model Credential {
   credentialHash    String   @map("credential_hash")
   credentialType    String   @map("credential_type")
   verificationStatus String  @default("pending") @map("verification_status")
-  metadata          Json?
+  metadata          String? // JSON stored as string for SQLite
   createdAt         DateTime @default(now()) @map("created_at")
   updatedAt         DateTime @updatedAt @map("updated_at")
 
@@ -51,7 +51,7 @@ model VerificationRequest {
   targetId     String   @map("target_id")
   requestType  String   @map("request_type")
   status       String   @default("pending")
-  metadata     Json?
+  metadata     String? // JSON stored as string for SQLite
   createdAt    DateTime @default(now()) @map("created_at")
   updatedAt    DateTime @updatedAt @map("updated_at")
 
@@ -66,7 +66,7 @@ model ConsentRecord {
   id            String    @id @default(uuid())
   dataOwnerId   String    @map("data_owner_id")
   requesterId   String    @map("requester_id")
-  dataScope     Json      @map("data_scope")
+  dataScope     String    @map("data_scope") // JSON stored as string for SQLite
   consentStatus String    @default("pending") @map("consent_status")
   expiresAt     DateTime? @map("expires_at")
   createdAt     DateTime  @default(now()) @map("created_at")
@@ -85,7 +85,7 @@ model AccessLog {
   targetId    String   @map("target_id")
   action      String
   dataType    String   @map("data_type")
-  metadata    Json?
+  metadata    String? // JSON stored as string for SQLite
   createdAt   DateTime @default(now()) @map("created_at")
 
   @@map("access_logs")
