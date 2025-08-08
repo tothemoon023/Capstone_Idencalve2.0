@@ -1,0 +1,29 @@
+{
+  "name": "idenclave-programs",
+  "version": "1.0.0",
+  "description": "Solana Anchor programs for IDenclave 2.0",
+  "main": "index.js",
+  "scripts": {
+    "build": "anchor build",
+    "deploy": "anchor deploy",
+    "test": "anchor test",
+    "clean": "anchor clean"
+  },
+  "keywords": [
+    "solana",
+    "anchor",
+    "blockchain",
+    "identity",
+    "verification"
+  ],
+  "author": "Malika Thaiyab",
+  "license": "MIT",
+  "devDependencies": {
+    "@coral-xyz/anchor": "^0.29.0",
+    "@solana/web3.js": "^1.87.6",
+    "chai": "^4.3.7",
+    "mocha": "^10.2.0",
+    "ts-mocha": "^10.0.0",
+    "typescript": "^5.3.2"
+  }
+}
