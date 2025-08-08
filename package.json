@@ -1,0 +1,42 @@
+{
+  "name": "idenclave-2.0",
+  "version": "1.0.0",
+  "description": "A blockchain-based identity verification system built on Solana",
+  "main": "index.js",
+  "scripts": {
+    "dev": "concurrently \"npm run dev:frontend\" \"npm run dev:backend\"",
+    "dev:frontend": "cd frontend && npm run dev",
+    "dev:backend": "cd backend && npm run dev",
+    "build": "npm run build:frontend && npm run build:backend",
+    "build:frontend": "cd frontend && npm run build",
+    "build:backend": "cd backend && npm run build",
+    "test": "npm run test:frontend && npm run test:backend",
+    "test:frontend": "cd frontend && npm test",
+    "test:backend": "cd backend && npm test",
+    "install:all": "npm install && cd frontend && npm install && cd ../backend && npm install && cd ../programs && npm install",
+    "setup": "npm run install:all && npm run setup:anchor",
+    "setup:anchor": "cd programs && anchor build",
+    "deploy": "cd programs && anchor deploy",
+    "start": "cd backend && npm start"
+  },
+  "keywords": [
+    "blockchain",
+    "identity",
+    "verification",
+    "solana",
+    "privacy",
+    "web3"
+  ],
+  "author": "Malika Thaiyab",
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "prettier": "^3.1.0",
+    "eslint": "^8.55.0"
+  },
+  "workspaces": [
+    "frontend",
+    "backend",
+    "programs"
+  ]
+}

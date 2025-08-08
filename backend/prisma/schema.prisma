@@ -1,0 +1,92 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String   @id @default(uuid())
+  walletAddress String   @unique @map("wallet_address")
+  profileData   Json?    @map("profile_data")
+  userType      String   @default("individual") @map("user_type")
+  status        String   @default("pending")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  credentials         Credential[]
+  verificationRequests VerificationRequest[] @relation("Requester")
+  verificationTargets VerificationRequest[] @relation("Target")
+  consentRecords      ConsentRecord[]      @relation("DataOwner")
+  consentRequests     ConsentRecord[]      @relation("Requester")
+
+  @@map("users")
+}
+
+model Credential {
+  id                String   @id @default(uuid())
+  userId            String   @map("user_id")
+  credentialHash    String   @map("credential_hash")
+  credentialType    String   @map("credential_type")
+  verificationStatus String  @default("pending") @map("verification_status")
+  metadata          Json?
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("credentials")
+}
+
+model VerificationRequest {
+  id           String   @id @default(uuid())
+  requesterId  String   @map("requester_id")
+  targetId     String   @map("target_id")
+  requestType  String   @map("request_type")
+  status       String   @default("pending")
+  metadata     Json?
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  requester User @relation("Requester", fields: [requesterId], references: [id], onDelete: Cascade)
+  target    User @relation("Target", fields: [targetId], references: [id], onDelete: Cascade)
+
+  @@map("verification_requests")
+}
+
+model ConsentRecord {
+  id            String    @id @default(uuid())
+  dataOwnerId   String    @map("data_owner_id")
+  requesterId   String    @map("requester_id")
+  dataScope     Json      @map("data_scope")
+  consentStatus String    @default("pending") @map("consent_status")
+  expiresAt     DateTime? @map("expires_at")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+
+  // Relations
+  dataOwner User @relation("DataOwner", fields: [dataOwnerId], references: [id], onDelete: Cascade)
+  requester User @relation("Requester", fields: [requesterId], references: [id], onDelete: Cascade)
+
+  @@map("consent_records")
+}
+
+model AccessLog {
+  id          String   @id @default(uuid())
+  accessorId  String   @map("accessor_id")
+  targetId    String   @map("target_id")
+  action      String
+  dataType    String   @map("data_type")
+  metadata    Json?
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@map("access_logs")
+}
