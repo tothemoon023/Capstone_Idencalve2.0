@@ -108,6 +108,9 @@ prisma/migrations/
 # Solana
 target/
 .anchor/
+test-ledger/
+*-keypair.json
+idenclave-keypair.json
 
 # Testing
 coverage/
@@ -138,3 +141,16 @@ yarn-error.log*
 # TypeScript
 *.tsbuildinfo
 next-env.d.ts
+
+# Demo materials - exclude large files
+demo-materials/*.png
+demo-materials/*.jpg
+demo-materials/*.jpeg
+demo-materials/*.gif
+demo-materials/*.mp4
+demo-materials/*.mov
+demo-materials/*.avi
+
+# Uploads
+backend/uploads/
+uploads/

@@ -1,283 +1,235 @@
 const express = require('express');
-const { PrismaClient } = require('@prisma/client');
-const jwt = require('jsonwebtoken');
+const multer = require('multer');
+const path = require('path');
+const fs = require('fs');
+const { v4: uuidv4 } = require('uuid');
 
 const router = express.Router();
-const prisma = new PrismaClient();
 
-// Middleware to verify JWT token
-const authenticateToken = (req, res, next) => {
-  const token = req.headers.authorization?.replace('Bearer ', '');
-
-  if (!token) {
-    return res.status(401).json({
-      error: 'No token provided',
-      message: 'Authentication token is required'
-    });
-  }
-
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded;
-    next();
-  } catch (error) {
-    return res.status(401).json({
-      error: 'Invalid token',
-      message: 'Authentication token is invalid'
-    });
-  }
-};
-
-// POST /api/identity/create
-router.post('/create', authenticateToken, async (req, res) => {
-  try {
-    const { walletAddress } = req.user;
-    const { profileData, userType } = req.body;
-
-    // Check if user already exists
-    const existingUser = await prisma.user.findUnique({
-      where: { walletAddress }
-    });
-
-    if (existingUser) {
-      return res.status(400).json({
-        error: 'User already exists',
-        message: 'User with this wallet address already exists'
-      });
+// Configure multer for file uploads
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    const uploadDir = 'uploads/';
+    if (!fs.existsSync(uploadDir)) {
+      fs.mkdirSync(uploadDir, { recursive: true });
     }
-
-    // Create new user
-    const user = await prisma.user.create({
-      data: {
-        walletAddress,
-        profileData: profileData || {},
-        userType: userType || 'individual'
-      }
-    });
-
-    res.status(201).json({
-      success: true,
-      message: 'User identity created successfully',
-      data: {
-        user: {
-          id: user.id,
-          walletAddress: user.walletAddress,
-          userType: user.userType,
-          status: user.status,
-          profileData: user.profileData
-        }
-      }
-    });
-
-  } catch (error) {
-    console.error('Create user error:', error);
-    res.status(500).json({
-      error: 'Internal server error',
-      message: 'Failed to create user identity'
-    });
+    cb(null, uploadDir);
+  },
+  filename: function (req, file, cb) {
+    const uniqueName = `${uuidv4()}-${file.originalname}`;
+    cb(null, uniqueName);
   }
 });
 
-// GET /api/identity/:walletAddress
-router.get('/:walletAddress', authenticateToken, async (req, res) => {
+const upload = multer({
+  storage: storage,
+  limits: {
+    fileSize: 10 * 1024 * 1024 // 10MB limit
+  },
+  fileFilter: function (req, file, cb) {
+    const allowedTypes = ['application/pdf', 'image/jpeg', 'image/png', 'image/jpg'];
+    if (allowedTypes.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error('Invalid file type. Only PDF, JPG, and PNG files are allowed.'), false);
+    }
+  }
+});
+
+// Get user profile
+router.get('/profile', async (req, res) => {
   try {
-    const { walletAddress } = req.params;
-
-    // Verify user can only access their own profile
-    if (req.user.walletAddress !== walletAddress) {
-      return res.status(403).json({
-        error: 'Access denied',
-        message: 'You can only access your own profile'
-      });
+    const { walletAddress } = req.query;
+    
+    if (!walletAddress) {
+      return res.status(400).json({ error: 'Wallet address is required' });
     }
 
-    const user = await prisma.user.findUnique({
-      where: { walletAddress },
-      include: {
-        credentials: true,
-        verificationRequests: true,
-        verificationTargets: true
-      }
-    });
+    // Mock response for demo
+    const profile = {
+      walletAddress,
+      name: 'John Doe',
+      email: 'john.doe@example.com',
+      profession: 'Software Engineer',
+      location: 'San Francisco, CA',
+      status: 'verified',
+      createdAt: new Date().toISOString()
+    };
 
-    if (!user) {
-      return res.status(404).json({
-        error: 'User not found',
-        message: 'User with this wallet address does not exist'
-      });
+    res.json(profile);
+  } catch (error) {
+    console.error('Error getting profile:', error);
+    res.status(500).json({ error: 'Failed to get profile' });
+  }
+});
+
+// Update user profile
+router.put('/profile', async (req, res) => {
+  try {
+    const { walletAddress, profileData } = req.body;
+    
+    if (!walletAddress || !profileData) {
+      return res.status(400).json({ error: 'Wallet address and profile data are required' });
     }
+
+    // Mock response for demo
+    const updatedProfile = {
+      walletAddress,
+      ...profileData,
+      updatedAt: new Date().toISOString()
+    };
+
+    res.json(updatedProfile);
+  } catch (error) {
+    console.error('Error updating profile:', error);
+    res.status(500).json({ error: 'Failed to update profile' });
+  }
+});
+
+// Upload document
+router.post('/upload-document', upload.single('file'), async (req, res) => {
+  try {
+    const { documentType, walletAddress } = req.body;
+    const file = req.file;
+
+    if (!file) {
+      return res.status(400).json({ error: 'No file uploaded' });
+    }
+
+    if (!documentType || !walletAddress) {
+      return res.status(400).json({ error: 'Document type and wallet address are required' });
+    }
+
+    // Mock document record for demo
+    const document = {
+      id: Date.now(),
+      filename: file.filename,
+      originalName: file.originalname,
+      documentType,
+      walletAddress,
+      fileSize: file.size,
+      mimeType: file.mimetype,
+      uploadDate: new Date().toISOString(),
+      status: 'pending',
+      filePath: file.path
+    };
+
+    // In a real application, you would save this to the database
+    console.log('Document uploaded:', document);
 
     res.json({
       success: true,
-      data: {
-        user: {
-          id: user.id,
-          walletAddress: user.walletAddress,
-          userType: user.userType,
-          status: user.status,
-          profileData: user.profileData,
-          credentials: user.credentials,
-          verificationRequests: user.verificationRequests,
-          verificationTargets: user.verificationTargets
-        }
+      document: {
+        id: document.id,
+        name: file.originalname,
+        type: documentType,
+        status: 'Pending',
+        date: new Date().toISOString().split('T')[0],
+        size: `${(file.size / (1024 * 1024)).toFixed(1)} MB`
       }
     });
-
   } catch (error) {
-    console.error('Get user error:', error);
-    res.status(500).json({
-      error: 'Internal server error',
-      message: 'Failed to get user profile'
-    });
+    console.error('Error uploading document:', error);
+    res.status(500).json({ error: 'Failed to upload document' });
   }
 });
 
-// PUT /api/identity/:walletAddress
-router.put('/:walletAddress', authenticateToken, async (req, res) => {
+// Get user documents
+router.get('/documents', async (req, res) => {
   try {
-    const { walletAddress } = req.params;
-    const { profileData, userType, status } = req.body;
-
-    // Verify user can only update their own profile
-    if (req.user.walletAddress !== walletAddress) {
-      return res.status(403).json({
-        error: 'Access denied',
-        message: 'You can only update your own profile'
-      });
+    const { walletAddress } = req.query;
+    
+    if (!walletAddress) {
+      return res.status(400).json({ error: 'Wallet address is required' });
     }
 
-    const updatedUser = await prisma.user.update({
-      where: { walletAddress },
-      data: {
-        profileData: profileData || undefined,
-        userType: userType || undefined,
-        status: status || undefined
+    // Mock documents for demo
+    const documents = [
+      {
+        id: 1,
+        name: 'Driver License.pdf',
+        type: 'ID Document',
+        status: 'Verified',
+        date: '2024-08-08',
+        size: '2.3 MB'
+      },
+      {
+        id: 2,
+        name: 'Passport.pdf',
+        type: 'ID Document',
+        status: 'Pending',
+        date: '2024-08-07',
+        size: '1.8 MB'
       }
-    });
+    ];
 
-    res.json({
-      success: true,
-      message: 'User profile updated successfully',
-      data: {
-        user: {
-          id: updatedUser.id,
-          walletAddress: updatedUser.walletAddress,
-          userType: updatedUser.userType,
-          status: updatedUser.status,
-          profileData: updatedUser.profileData
-        }
-      }
-    });
-
+    res.json(documents);
   } catch (error) {
-    console.error('Update user error:', error);
-    res.status(500).json({
-      error: 'Internal server error',
-      message: 'Failed to update user profile'
-    });
+    console.error('Error getting documents:', error);
+    res.status(500).json({ error: 'Failed to get documents' });
   }
 });
 
-// POST /api/identity/:walletAddress/credentials
-router.post('/:walletAddress/credentials', authenticateToken, async (req, res) => {
+// Add credential
+router.post('/credentials', async (req, res) => {
   try {
-    const { walletAddress } = req.params;
-    const { credentialHash, credentialType, metadata } = req.body;
-
-    // Verify user can only add credentials to their own profile
-    if (req.user.walletAddress !== walletAddress) {
-      return res.status(403).json({
-        error: 'Access denied',
-        message: 'You can only add credentials to your own profile'
-      });
+    const { walletAddress, credentialHash, credentialType, metadata } = req.body;
+    
+    if (!walletAddress || !credentialHash || !credentialType) {
+      return res.status(400).json({ error: 'Wallet address, credential hash, and type are required' });
     }
 
-    // Get user
-    const user = await prisma.user.findUnique({
-      where: { walletAddress }
-    });
+    // Mock credential for demo
+    const credential = {
+      id: Date.now(),
+      walletAddress,
+      credentialHash,
+      credentialType,
+      metadata: metadata || '',
+      createdAt: new Date().toISOString(),
+      status: 'active'
+    };
 
-    if (!user) {
-      return res.status(404).json({
-        error: 'User not found',
-        message: 'User with this wallet address does not exist'
-      });
-    }
-
-    // Create credential
-    const credential = await prisma.credential.create({
-      data: {
-        userId: user.id,
-        credentialHash,
-        credentialType,
-        metadata: metadata || {}
-      }
-    });
-
-    res.status(201).json({
-      success: true,
-      message: 'Credential added successfully',
-      data: {
-        credential: {
-          id: credential.id,
-          credentialHash: credential.credentialHash,
-          credentialType: credential.credentialType,
-          verificationStatus: credential.verificationStatus,
-          metadata: credential.metadata,
-          createdAt: credential.createdAt
-        }
-      }
-    });
-
+    res.json(credential);
   } catch (error) {
-    console.error('Add credential error:', error);
-    res.status(500).json({
-      error: 'Internal server error',
-      message: 'Failed to add credential'
-    });
+    console.error('Error adding credential:', error);
+    res.status(500).json({ error: 'Failed to add credential' });
   }
 });
 
-// GET /api/identity/:walletAddress/credentials
-router.get('/:walletAddress/credentials', authenticateToken, async (req, res) => {
+// Get user credentials
+router.get('/credentials', async (req, res) => {
   try {
-    const { walletAddress } = req.params;
-
-    // Verify user can only access their own credentials
-    if (req.user.walletAddress !== walletAddress) {
-      return res.status(403).json({
-        error: 'Access denied',
-        message: 'You can only access your own credentials'
-      });
+    const { walletAddress } = req.query;
+    
+    if (!walletAddress) {
+      return res.status(400).json({ error: 'Wallet address is required' });
     }
 
-    const user = await prisma.user.findUnique({
-      where: { walletAddress },
-      include: {
-        credentials: true
+    // Mock credentials for demo
+    const credentials = [
+      {
+        id: 1,
+        credentialHash: 'abc123...',
+        credentialType: 'Professional License',
+        metadata: 'Software Engineer License',
+        status: 'active',
+        createdAt: '2024-08-01'
+      },
+      {
+        id: 2,
+        credentialHash: 'def456...',
+        credentialType: 'Certificate',
+        metadata: 'Blockchain Development Certificate',
+        status: 'active',
+        createdAt: '2024-08-05'
       }
-    });
+    ];
 
-    if (!user) {
-      return res.status(404).json({
-        error: 'User not found',
-        message: 'User with this wallet address does not exist'
-      });
-    }
-
-    res.json({
-      success: true,
-      data: {
-        credentials: user.credentials
-      }
-    });
-
+    res.json(credentials);
   } catch (error) {
-    console.error('Get credentials error:', error);
-    res.status(500).json({
-      error: 'Internal server error',
-      message: 'Failed to get credentials'
-    });
+    console.error('Error getting credentials:', error);
+    res.status(500).json({ error: 'Failed to get credentials' });
   }
 });
 

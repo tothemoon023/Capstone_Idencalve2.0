@@ -6,9 +6,11 @@ import {
   CogIcon,
   PlusIcon
 } from '@heroicons/react/24/outline'
+import { useIdenclave } from '../../hooks/useIdenclave'
 
 export default function UserDashboard() {
   const { publicKey } = useWallet()
+  const { loading, error, getUserAccount, getBalance, programId } = useIdenclave()
 
   const stats = [
     { name: 'Credentials', value: '3', icon: DocumentTextIcon, color: 'bg-blue-500' },
@@ -30,9 +32,11 @@ export default function UserDashboard() {
           <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
           <p className="text-gray-600">Welcome to your digital identity</p>
         </div>
-        <div className="text-sm text-gray-500">
-          Wallet: {publicKey?.toBase58().slice(0, 8)}...{publicKey?.toBase58().slice(-8)}
-        </div>
+                            <div className="text-sm text-gray-500">
+                      Wallet: {publicKey?.toBase58().slice(0, 8)}...{publicKey?.toBase58().slice(-8)}
+                      <br />
+                      <span className="text-xs text-green-600">Program: {programId.slice(0, 8)}...{programId.slice(-8)}</span>
+                    </div>
       </div>
 
       {/* Stats */}

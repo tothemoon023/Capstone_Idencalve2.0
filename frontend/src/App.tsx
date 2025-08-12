@@ -11,6 +11,8 @@ import ConsentManager from './components/sharing/ConsentManager'
 import DataSharing from './components/sharing/DataSharing'
 import BusinessDashboard from './components/dashboard/BusinessDashboard'
 import WalletConnect from './components/auth/WalletConnect'
+import TestBlockchain from './components/TestBlockchain'
+import WalletTest from './components/WalletTest'
 
 function App() {
   const { connected } = useWallet()
@@ -31,6 +33,8 @@ function App() {
               <Route path="/consent" element={<ConsentManager />} />
               <Route path="/sharing" element={<DataSharing />} />
               <Route path="/business" element={<BusinessDashboard />} />
+              <Route path="/test" element={<TestBlockchain />} />
+              <Route path="/wallet-test" element={<WalletTest />} />
             </>
           ) : (
             <Route path="*" element={<WalletConnect />} />
