@@ -3,17 +3,17 @@ seeds = false
 skip-lint = false
 
 [programs.localnet]
-idenclave = "Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS"
+idenclave = "Gp1WFWsFF7t84LgrZRv5ALoZsDf7YjRDzrc5FxE3zVUH"
 
 [programs.devnet]
-idenclave = "E26WsLNacfSvEJcKMZ1667XPoNn3mDpyCb523sgaf8yy"
+idenclave = "Gp1WFWsFF7t84LgrZRv5ALoZsDf7YjRDzrc5FxE3zVUH"
 
 [registry]
 url = "https://api.apr.dev"
 
 [provider]
 cluster = "devnet"
-wallet = "idenclave-keypair.json"
+wallet = "idenclave-new-keypair.json"
 
 [scripts]
 test = "yarn run ts-mocha -p ./tsconfig.json -t 1000000 tests/**/*.ts"

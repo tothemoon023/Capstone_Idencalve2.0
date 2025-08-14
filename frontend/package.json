@@ -1,54 +1,45 @@
 {
   "name": "idenclave-frontend",
   "version": "1.0.0",
-  "private": true,
-  "dependencies": {
-    "@headlessui/react": "^1.7.17",
-    "@heroicons/react": "^2.0.18",
-    "@solana/wallet-adapter-base": "^0.9.23",
-    "@solana/wallet-adapter-react": "^0.15.35",
-    "@solana/wallet-adapter-react-ui": "^0.9.34",
-    "@solana/wallet-adapter-wallets": "^0.19.23",
-    "@solana/web3.js": "^1.87.6",
-    "@types/node": "^20.10.0",
-    "@types/react": "^18.2.39",
-    "@types/react-dom": "^18.2.17",
-    "@vitejs/plugin-react": "^4.2.0",
-    "axios": "^1.6.2",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "react-router-dom": "^6.20.1",
-    "typescript": "^5.3.2",
-    "vite": "^5.0.7",
-    "zustand": "^4.4.7"
-  },
-  "devDependencies": {
-    "@typescript-eslint/eslint-plugin": "^6.13.1",
-    "@typescript-eslint/parser": "^6.13.1",
-    "autoprefixer": "^10.4.16",
-    "eslint": "^8.54.0",
-    "eslint-plugin-react-hooks": "^4.6.0",
-    "eslint-plugin-react-refresh": "^0.4.4",
-    "postcss": "^8.4.32",
-    "tailwindcss": "^3.3.6"
-  },
+  "description": "Frontend for IDenclave 2.0",
+  "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
-    "test": "vitest"
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "test:coverage": "vitest --coverage"
   },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.8.1",
+    "@solana/wallet-adapter-react": "^0.15.35",
+    "@solana/wallet-adapter-react-ui": "^0.9.34",
+    "@solana/wallet-adapter-base": "^0.9.23",
+    "@solana/wallet-adapter-wallets": "^0.19.23",
+    "@solana/web3.js": "^1.87.6"
+  },
+  "devDependencies": {
+    "@types/react": "^18.0.28",
+    "@types/react-dom": "^18.0.11",
+    "@vitejs/plugin-react": "^3.1.0",
+    "typescript": "^4.9.3",
+    "vite": "^4.1.0",
+    "tailwindcss": "^3.2.7",
+    "autoprefixer": "^10.4.14",
+    "postcss": "^8.4.21",
+    "@testing-library/react": "^13.4.0",
+    "@testing-library/jest-dom": "^5.16.5",
+    "@testing-library/user-event": "^14.4.3",
+    "vitest": "^0.29.8",
+    "@vitest/ui": "^0.29.8",
+    "jsdom": "^21.1.1"
+  },
+  "vitest": {
+    "environment": "jsdom",
+    "setupFiles": ["./src/tests/setup.ts"],
+    "globals": true
   }
 }

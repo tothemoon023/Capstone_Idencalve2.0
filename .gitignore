@@ -151,6 +151,13 @@ demo-materials/*.mp4
 demo-materials/*.mov
 demo-materials/*.avi
 
+# Demo materials and docs folders
+demo-materials/
+docs/
+
 # Uploads
 backend/uploads/
 uploads/
+
+# Shell scripts
+*.sh
