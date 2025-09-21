@@ -9,7 +9,7 @@ const useLocalnet = false; // Keep false for devnet demo
 
 export const SOLANA_CONFIG = {
   // Program ID for the deployed IDenclave smart contract
-  PROGRAM_ID: 'E26WsLNacfSvEJcKMZ1667XPoNn3mDpyCb523sgaf8yy',
+  PROGRAM_ID: 'Gp1WFWsFF7t84LgrZRv5ALoZsDf7YjRDzrc5FxE3zVUH',
   
   // Solana endpoint - use localnet in development, devnet in production
   RPC_ENDPOINT: useLocalnet ? 'http://localhost:8899' : clusterApiUrl('devnet'),

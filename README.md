@@ -368,11 +368,15 @@ npm run install:all
 
 3. **Set up environment variables**
 ```bash
-cp .env.example .env
+cp env.example .env
 # Edit .env with your configuration
 ```
 
-4. **Start development servers**
+4. **Configure Program ID**
+The smart contract is deployed with Program ID: `Gp1WFWsFF7t84LgrZRv5ALoZsDf7YjRDzrc5FxE3zVUH`
+This is already configured in the frontend, but you can verify it in `frontend/src/config/solana.ts`
+
+5. **Start development servers**
 ```bash
 npm run dev
 ```
@@ -409,6 +413,25 @@ idenclave-2.0/
 └── package.json
 ```
 
+## 🔗 Smart Contract Configuration
+
+### Program ID
+- **Deployed Program ID**: `Gp1WFWsFF7t84LgrZRv5ALoZsDf7YjRDzrc5FxE3zVUH`
+- **Network**: Solana Devnet
+- **Status**: ✅ Deployed and Active
+- **Location**: `programs/Anchor.toml` and `programs/src/lib.rs`
+
+### Frontend Integration
+The Program ID is configured in `frontend/src/config/solana.ts`:
+```typescript
+export const SOLANA_CONFIG = {
+  PROGRAM_ID: 'Gp1WFWsFF7t84LgrZRv5ALoZsDf7YjRDzrc5FxE3zVUH',
+  RPC_ENDPOINT: clusterApiUrl('devnet'),
+  NETWORK: 'devnet',
+  // ... other config
+};
+```
+
 ## 🏗️ Architecture
 
 ### Frontend (React + TypeScript)
@@ -430,6 +453,7 @@ idenclave-2.0/
 - **Framework**: Anchor
 - **Language**: Rust
 - **Programs**: Identity, Verification, Consent management
+- **Program ID**: `Gp1WFWsFF7t84LgrZRv5ALoZsDf7YjRDzrc5FxE3zVUH`
 
 ## 🔧 Core Features
 
